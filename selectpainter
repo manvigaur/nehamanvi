@@ -1,0 +1,230 @@
+package com.sort.selection;
+
+import java.awt.Color;
+import java.awt.Graphics;
+
+class Painter
+{
+  private final int appletWidth = 1000;
+  private final int appletHeight = 800;
+  private final int maxHeight = 200;
+  private final int topMargin = 30;
+  private final int leftMargin = 10;
+  private final int barLeftMargin = 35;
+  private final int textHeight = 13;
+  private int aSize;
+  private BarBox[] barBoxex;
+  private int barWidth =25;
+  private int barSeparation;
+  private int outer;
+  private int inner;
+  private int min;
+  private int outerOld;
+  private int minOld;
+  private boolean searchFlag;
+  private boolean swapFlag;
+  private boolean doneFlag;
+  private int comps;
+  private int swaps;
+  private int initOrder;
+  private Color newColor;
+  private int drawMode;
+  
+  public Painter(int paramInt1, int paramInt2)
+  {
+    this.aSize = paramInt1;
+    this.initOrder = paramInt2;
+    this.barBoxex = new BarBox[this.aSize];
+      this.barWidth = 25;this.barSeparation = 10;
+    this.outer = 0;
+    this.inner = 1;
+    this.min = 0;
+    this.searchFlag = true;
+    this.comps = 0;
+    this.swaps = 0;
+    this.swapFlag = false;
+    this.doneFlag = false;
+    int i;
+    int j;
+    if (this.initOrder == 1) {
+      for (i = 0; i < this.aSize; i++)
+      {
+        j = (int)(Math.random() * 199.0D);
+        this.barBoxex[i] = new BarBox(j,j, Color.gray);
+      }
+    } else {
+      for (i = 0; i < this.aSize; i++)
+      {
+        j = 199 - 199 * i / this.aSize;
+        
+        this.barBoxex[i] = new BarBox(j,j,  Color.gray);
+      }
+    }
+    this.drawMode = 2;
+  }
+  
+  public void setDrawMode(int paramInt)
+  {
+    this.drawMode = paramInt;
+  }
+  
+  public int getAppletWidth()
+  {
+    return 1000;
+  }
+  
+  public int getAppletHeight()
+  {
+    return 800;
+  }
+  
+  public boolean getDone()
+  {
+    return this.doneFlag;
+  }
+  
+  public void arrowText(Graphics paramGraphics, Color paramColor, String paramString, int paramInt1, int paramInt2, boolean paramBoolean1, boolean paramBoolean2)
+  {
+    int x_cord = 35 + paramInt1 * (this.barWidth + this.barSeparation);
+    int y_cord = 230 + (paramInt2 + 1) * 13;
+    paramGraphics.setColor(paramColor);
+    if (paramBoolean2) {
+      paramGraphics.drawString(paramString, x_cord, y_cord);
+    }
+    if (paramBoolean1)
+    {
+      paramGraphics.drawLine(x_cord + this.barWidth / 2, 232, 
+        x_cord + this.barWidth / 2, y_cord - 13);
+      
+      paramGraphics.drawLine(x_cord + this.barWidth / 2, 232, 
+        x_cord + this.barWidth / 2 - 3, 237);
+      paramGraphics.drawLine(x_cord + this.barWidth / 2, 232, 
+        x_cord + this.barWidth / 2 + 3, 237);
+    }
+  }
+  
+  public void drawOneBar(Graphics paramGraphics, int paramInt)
+  {
+    int height = this.barBoxex[paramInt].getHeight();
+    int value =this.barBoxex[paramInt].getValue();
+    int x_cord = 35 + 
+      paramInt * (this.barWidth + this.barSeparation);
+    int y_cord = 230 - height;
+    Color localColor = this.barBoxex[paramInt].getColor();
+    
+    paramGraphics.setColor(Color.pink);
+    paramGraphics.fillRect(x_cord, 0, this.barWidth, 240);
+    paramGraphics.setColor(localColor);
+    paramGraphics.fill3DRect(x_cord, y_cord, this.barWidth, height, true);
+    paramGraphics.setColor(Color.blue);
+	paramGraphics.drawString(" " + value, x_cord + 2, y_cord - 5);
+	paramGraphics.setColor(localColor);
+  }
+  
+  public void draw(Graphics paramGraphics)
+  {
+    if (this.drawMode != 2)
+    {
+      if (this.swapFlag == true)
+      {
+        drawOneBar(paramGraphics, this.outerOld);
+        drawOneBar(paramGraphics, this.minOld);
+        this.swapFlag = false;
+      }
+    }
+    else
+    {
+      paramGraphics.setColor(Color.pink);
+      paramGraphics.fillRect(0, 0, 800, 800);
+      for (int i = 0; i < this.aSize; i++) {
+        drawOneBar(paramGraphics, i);
+      }
+    }
+    paramGraphics.setColor(Color.pink);
+    paramGraphics.fillRect(0, 0, 150, 32);
+    paramGraphics.setColor(Color.black);
+    paramGraphics.drawString("Comparisons = " + this.comps, 10, 
+      28);
+    paramGraphics.drawString("Swaps = " + this.swaps, 10, 
+      15);
+    
+    paramGraphics.setColor(Color.pink);
+    paramGraphics.fillRect(0, 230, 
+      370, 68);
+    if (this.aSize == 10)
+    {
+      arrowText(paramGraphics, Color.red, "outer", this.outer, 1, true, true);
+      arrowText(paramGraphics, Color.blue, "inner", this.inner, 2, true, true);
+      arrowText(paramGraphics, Color.magenta, "min", this.min, 3, true, true);
+      if (this.doneFlag == true) {
+        arrowText(paramGraphics, Color.black, "Sort is complete", 
+          0, 4, false, true);
+      } else if (this.searchFlag == true) {
+        arrowText(paramGraphics, Color.black, "Searching for minimum", 
+          0, 4, false, true);
+      } else if (this.outer == this.min) {
+        arrowText(paramGraphics, Color.black, "No swap necessary", 
+          0, 4, false, true);
+      } else {
+        arrowText(paramGraphics, Color.black, "Will swap outer & min", 
+          0, 4, false, true);
+      }
+    }
+    else
+    {
+      arrowText(paramGraphics, Color.red, "xxx", this.outer, 1, true, false);
+      arrowText(paramGraphics, Color.blue, "xxx", this.inner, 2, true, false);
+      arrowText(paramGraphics, Color.magenta, "xxx", this.min, 3, true, false);
+    }
+    this.drawMode = 2;
+  }
+  
+  public void sortStep()
+  {
+    if (this.doneFlag == true) {
+      return;
+    }
+    if ((this.inner > this.aSize - 1) && (this.searchFlag == true)) {
+      return;
+    }
+    if (this.searchFlag == true)
+    {
+      this.comps += 1;
+      if (this.barBoxex[this.inner].getHeight() < 
+        this.barBoxex[this.min].getHeight())
+      {
+        this.minOld = this.min;
+        this.min = this.inner;
+      }
+      this.inner += 1;
+      if (this.inner > this.aSize - 1) {
+        this.searchFlag = false;
+      }
+    }
+    else
+    {
+      if (this.min != this.outer)
+      {
+        swap(this.outer, this.min);
+        this.swapFlag = true;
+        this.swaps += 1;
+      }
+      this.outerOld = this.outer;
+      this.outer += 1;
+      this.inner = (this.outer + 1);
+      this.minOld = this.min;
+      this.min = this.outer;
+      this.searchFlag = true;
+      if (this.outer > this.aSize - 2) {
+        this.doneFlag = true;
+      }
+    }
+  }
+  
+  public void swap(int paramInt1, int paramInt2)
+  {
+    BarBox localpersonSS = this.barBoxex[paramInt1];
+    this.barBoxex[paramInt1] = this.barBoxex[paramInt2];
+    this.barBoxex[paramInt2] = localpersonSS;
+  }
+}
